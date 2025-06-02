@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🌊 Tsunami Analysis & Classification System</title>
+  
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  
+  <!-- Font Awesome -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #d1e7fe;
+      min-height: 100vh;
+    }
+    
+    .classifier-header {
+      background: #d1e7fe;
+      color: #333333;
+      padding: 4rem 0 3rem;
+      margin-bottom: 2rem;
+      border-radius: 0 0 50px 50px;
+    }
+    
+    .form-control, .form-select {
+      border: 2px solid rgba(196, 208, 251, 0.3);
+      border-radius: 12px;
+      padding: 0.75rem 1rem;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    
+    .form-control:focus, .form-select:focus {
+      border-color: #c4d0fb;
+      box-shadow: 0 0 0 0.2rem rgba(196, 208, 251, 0.25);
+      transform: translateY(-1px);
+    }
+    
+    .form-label {
+      font-weight: 600;
+      color: #333333;
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .form-label i {
+      color: #c4d0fb;
+    }
+    
+    .help-text {
+      font-size: 0.875rem;
+      color: #333333;
+      margin-top: 0.25rem;
+      opacity: 0.7;
+    }
+    
+    .card {
+      border: none;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+      backdrop-filter: blur(10px);
+      background: #ffffff;
+    }
+    
+    .card-header {
+      background: #f3d9ff;
+      border-radius: 20px 20px 0 0 !important;
+      border: none;
+      padding: 1.5rem;
+    }
+    
+    .card-header h5 {
+      color: #333333 !important;
+      font-weight: 700;
+    }
+    
+    .result-card .card-header {
+      background: #c4d0fb;
+    }
+    
+    .result-card .card-header h5 {
+      color: #333333 !important;
+      font-weight: 700;
+    }
+    
+    .btn-primary {
+      background: #f3d9ff;
+      border: none;
+      border-radius: 12px;
+      padding: 0.75rem 2rem;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(243, 217, 255, 0.3);
+      color: #333333;
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(243, 217, 255, 0.4);
+      background: #f3d9ff;
+      color: #333333;
+      opacity: 0.9;
+    }
+    
+    .btn-outline-secondary {
+      border: 2px solid #c4d0fb;
+      border-radius: 12px;
+      padding: 0.75rem 2rem;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      color: #c4d0fb;
+      background: transparent;
+    }
+    
+    .btn-outline-secondary:hover {
+      background-color: #c4d0fb;
+      border-color: #c4d0fb;
+      color: #333333;
+    }
+    
+    .form-section {
+      background: rgba(196, 208, 251, 0.15);
+      border-radius: 16px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      border: 1px solid rgba(196, 208, 251, 0.3);
+    }
+    
+    .section-title {
+      color: #333333;
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    
+    .section-title i {
+      background: #f3d9ff;
+      color: #333333;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+    }
+    
+    .action-buttons {
+      background: rgba(209, 231, 254, 0.15);
+      border-radius: 16px;
+      padding: 2rem;
+      text-align: center;
+      border: 1px solid rgba(209, 231, 254, 0.3);
+    }
+    
+    .result-card {
+      animation: slideIn 0.5s ease;
+    }
+    
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .info-card {
+      background: #ffffff;
+    }
+    
+    .classification-types li {
+      padding: 0.75rem 0;
+      border-bottom: 1px solid rgba(0,0,0,0.05);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    
+    .type-indicator {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    
+    .type-definite { background: #baf1e3; }
+    .type-probable { background: #d1e7fe; }
+    .type-questionable { background: #f3d9ff; }
+    .type-doubtful { background: #c4d0fb; }
+    .type-seiche { background: #c4d0fb; }
+    
+    .container {
+      max-width: 1400px;
+    }
+    
+    /* Classification Result Colors */
+    .result-definite {
+      background-color: #baf1e3 !important;
+      color: #333333 !important;
+      font-weight: bold;
+    }
+    
+    .result-probable {
+      background-color: #d1e7fe !important;
+      color: #333333 !important;
+      font-weight: bold;
+    }
+    
+    .result-questionable {
+      background-color: #f3d9ff !important;
+      color: #333333 !important;
+      font-weight: bold;
+    }
+    
+    .result-doubtful {
+      background-color: #c4d0fb !important;
+      color: #333333 !important;
+      font-weight: bold;
+    }
+    
+    /* Navigation Updates */
+    .navbar-brand {
+      color: #333333 !important;
+    }
+    
+    .nav-link:hover {
+      color: #baf1e3 !important;
+    }
+    
+    /* Info Card Headers */
+    .info-card .card-header {
+      background: #baf1e3 !important;
+    }
+    
+    .info-card .card-header h5 {
+      color: #333333 !important;
+    }
+    
+    /* Badge Updates */
+    .badge.bg-light {
+      background-color: #baf1e3 !important;
+      color: #333333 !important;
+    }
+    
+    /* Loading Spinner */
+    .spinner {
+      border: 4px solid rgba(243, 217, 255, 0.3);
+      border-top: 4px solid #f3d9ff;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 1rem;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body data-active-page="{{ active_page or 'dashboard' }}">
+  
+  <!-- Navigation -->
+  <nav class="navbar navbar-expand-lg navbar-dark sticky-top" style="background: rgba(255,255,255,0.1); backdrop-filter: blur(10px);">
+    <div class="container">
+      <a class="navbar-brand" href="/" style="font-weight: 700;">
+        <i class="fas fa-water" style="color: #f79f77;"></i>
+        <span class="navbar-brand">Tsunami Analysis System</span>
+      </a>
+      
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item">
+            <a class="nav-link text-white fw-semibold" href="#" data-page="dashboard" onclick="showPage('dashboard')">
+              <i class="fas fa-chart-line"></i> Dashboard
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-white fw-semibold" href="#" data-page="classifier" onclick="showPage('classifier')">
+              <i class="fas fa-brain"></i> AI Classifier
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="container-fluid px-0">
+    
+    <!-- Dashboard Page -->
+    <div id="dashboard" class="page-section">
+      <!-- <div class="dashboard-header">
+        <div class="container">
+          <h1 class="display-4">
+            <i class="fas fa-chart-line"></i>
+            Tsunami Analytics Dashboard
+          </h1>
+          <p class="lead">Comprehensive visualization and analysis of global tsunami data</p>
+        </div>
+      </div> -->
+      
+      <div class="container">
+        <div class="card">
+          <div class="card-body p-4">
+            <iframe 
+              class="dashboard-iframe"
+              src="https://app.powerbi.com/reportEmbed?reportId=23cfb21f-3ab9-48cf-93fc-5c376771bf25&autoAuth=true&ctid=d494e113-528e-40ab-90d9-162de2fca3f3" 
+              allowFullScreen="true">
+            </iframe>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Classifier Page -->
+    <div id="classifier" class="page-section">
+      <div class="classifier-header">
+        <div class="container text-center">
+          <h1 class="display-4 mb-3">
+            <i class="fas fa-brain me-3"></i>
+            AI Tsunami Event Classifier
+          </h1>
+          <p class="lead fs-5">Advanced machine learning classification for tsunami event validity</p>
+          <div class="mt-4">
+            <span class="badge bg-light text-dark px-3 py-2 me-2 rounded-pill">
+              <i class="fas fa-chart-line me-1"></i> 77.08% Accuracy
+            </span>
+            <span class="badge bg-light text-dark px-3 py-2 me-2 rounded-pill">
+              <i class="fas fa-database me-1"></i> 9 Features Analysis
+            </span>
+            <span class="badge bg-light text-dark px-3 py-2 rounded-pill">
+              <i class="fas fa-globe me-1"></i> Global Coverage
+            </span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="container">
+        <div class="row g-4">
+          
+          <!-- Main Classification Form -->
+          <div class="col-lg-8">
+            <div class="card">
+              <div class="card-header">
+                <h5 class="mb-0">
+                  <i class="fas fa-edit me-2"></i>
+                  Event Classification Form
+                </h5>
+              </div>
+              <div class="card-body p-4">
+                
+                <form method="POST" action="/predict" id="classificationForm">
+                  
+                  <!-- Basic Event Information -->
+                  <div class="form-section">
+                    <h6 class="section-title">
+                      <i class="fas fa-info-circle"></i>
+                      Basic Event Information
+                    </h6>
+                    <div class="row g-3">
+                      <div class="col-md-6">
+                        <label for="month" class="form-label">
+                          <i class="fas fa-calendar"></i> Month of Event
+                        </label>
+                        <select name="month" id="month" class="form-select" required>
+                          <option value="">Select Month</option>
+                          <option value="1" {{ 'selected' if form_data and form_data.month == '1' else '' }}>January</option>
+                          <option value="2" {{ 'selected' if form_data and form_data.month == '2' else '' }}>February</option>
+                          <option value="3" {{ 'selected' if form_data and form_data.month == '3' else '' }}>March</option>
+                          <option value="4" {{ 'selected' if form_data and form_data.month == '4' else '' }}>April</option>
+                          <option value="5" {{ 'selected' if form_data and form_data.month == '5' else '' }}>May</option>
+                          <option value="6" {{ 'selected' if form_data and form_data.month == '6' else '' }}>June</option>
+                          <option value="7" {{ 'selected' if form_data and form_data.month == '7' else '' }}>July</option>
+                          <option value="8" {{ 'selected' if form_data and form_data.month == '8' else '' }}>August</option>
+                          <option value="9" {{ 'selected' if form_data and form_data.month == '9' else '' }}>September</option>
+                          <option value="10" {{ 'selected' if form_data and form_data.month == '10' else '' }}>October</option>
+                          <option value="11" {{ 'selected' if form_data and form_data.month == '11' else '' }}>November</option>
+                          <option value="12" {{ 'selected' if form_data and form_data.month == '12' else '' }}>December</option>
+                        </select>
+                        <div class="help-text">When did the event occur?</div>
+                      </div>
+
+                      <div class="col-md-6">
+                        <label for="cause" class="form-label">
+                          <i class="fas fa-exclamation-triangle"></i> Tsunami Cause
+                        </label>
+                        <select name="cause" id="cause" class="form-select" required>
+                          <option value="">Select Tsunami Cause</option>
+                          <option value="Earthquake" {{ 'selected' if form_data and form_data.cause == 'Earthquake' else '' }}>Earthquake</option>
+                          <option value="Landslide" {{ 'selected' if form_data and form_data.cause == 'Landslide' else '' }}>Landslide</option>
+                          <option value="Earthquake and Landslide" {{ 'selected' if form_data and form_data.cause == 'Earthquake and Landslide' else '' }}>Earthquake and Landslide</option>
+                          <option value="Volcano" {{ 'selected' if form_data and form_data.cause == 'Volcano' else '' }}>Volcano</option>
+                          <option value="Volcano and Landslide" {{ 'selected' if form_data and form_data.cause == 'Volcano and Landslide' else '' }}>Volcano and Landslide</option>
+                          <option value="Meteorological" {{ 'selected' if form_data and form_data.cause == 'Meteorological' else '' }}>Meteorological</option>
+                          <option value="Unknown" {{ 'selected' if form_data and form_data.cause == 'Unknown' else '' }}>Unknown</option>
+                          <option value="Volcano and Earthquake" {{ 'selected' if form_data and form_data.cause == 'Volcano and Earthquake' else '' }}>Volcano and Earthquake</option>
+                        </select>
+                        <div class="help-text">Primary cause of the tsunami</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Seismic Parameters -->
+                  <div class="form-section">
+                    <h6 class="section-title">
+                      <i class="fas fa-wave-square"></i>
+                      Seismic & Tsunami Parameters
+                    </h6>
+                    <div class="row g-3">
+                      <div class="col-md-4">
+                        <label for="magnitude" class="form-label">
+                          <i class="fas fa-chart-line"></i> Earthquake Magnitude
+                        </label>
+                        <input type="number" step="0.1" name="magnitude" id="magnitude" 
+                               class="form-control" placeholder="e.g., 7.2" required
+                               value="{{ form_data.magnitude if form_data else '' }}">
+                        <div class="help-text">Richter scale magnitude (3.7 - 9.5)</div>
+                      </div>
+
+                      <div class="col-md-4">
+                        <label for="depth" class="form-label">
+                          <i class="fas fa-layer-group"></i> Earthquake Depth (km)
+                        </label>
+                        <input type="number" step="0.1" name="depth" id="depth" 
+                               class="form-control" placeholder="e.g., 10.5" required
+                               value="{{ form_data.depth if form_data else '' }}">
+                        <div class="help-text">Depth below surface in kilometers</div>
+                      </div>
+
+                      <div class="col-md-4">
+                        <label for="intensity" class="form-label">
+                          <i class="fas fa-wave-square"></i> Tsunami Intensity
+                        </label>
+                        <input type="number" step="0.1" name="intensity" id="intensity" 
+                               class="form-control" placeholder="e.g., 3.5" required
+                               value="{{ form_data.intensity if form_data else '' }}">
+                        <div class="help-text">Tsunami intensity scale</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Geographic Information -->
+                  <div class="form-section">
+                    <h6 class="section-title">
+                      <i class="fas fa-map-marker-alt"></i>
+                      Geographic Location
+                    </h6>
+                    <div class="row g-3">
+                      <div class="col-md-6">
+                        <label for="latitude" class="form-label">
+                          <i class="fas fa-map-marker-alt"></i> Latitude
+                        </label>
+                        <input type="number" step="0.001" name="latitude" id="latitude" 
+                               class="form-control" placeholder="e.g., 35.123" required
+                               value="{{ form_data.latitude if form_data else '' }}">
+                        <div class="help-text">Geographic latitude (-90 to 90)</div>
+                      </div>
+
+                      <div class="col-md-6">
+                        <label for="longitude" class="form-label">
+                          <i class="fas fa-map-marker-alt"></i> Longitude
+                        </label>
+                        <input type="number" step="0.001" name="longitude" id="longitude" 
+                               class="form-control" placeholder="e.g., 139.456" required
+                               value="{{ form_data.longitude if form_data else '' }}">
+                        <div class="help-text">Geographic longitude (-180 to 180)</div>
+                      </div>
+
+                      <div class="col-md-6">
+                        <label for="country" class="form-label">
+                          <i class="fas fa-flag"></i> Country/Region
+                        </label>
+                        <select name="country" id="country" class="form-select" required>
+                          <option value="">Select Country/Region</option>
+                          <option value="Albania" {{ 'selected' if form_data and form_data.country == 'Albania' else '' }}>Albania</option>
+                          <option value="Algeria" {{ 'selected' if form_data and form_data.country == 'Algeria' else '' }}>Algeria</option>
+                          <option value="Argentina" {{ 'selected' if form_data and form_data.country == 'Argentina' else '' }}>Argentina</option>
+                          <option value="Australia" {{ 'selected' if form_data and form_data.country == 'Australia' else '' }}>Australia</option>
+                          <option value="Bangladesh" {{ 'selected' if form_data and form_data.country == 'Bangladesh' else '' }}>Bangladesh</option>
+                          <option value="Brazil" {{ 'selected' if form_data and form_data.country == 'Brazil' else '' }}>Brazil</option>
+                          <option value="Bulgaria" {{ 'selected' if form_data and form_data.country == 'Bulgaria' else '' }}>Bulgaria</option>
+                          <option value="Canada" {{ 'selected' if form_data and form_data.country == 'Canada' else '' }}>Canada</option>
+                          <option value="Chile" {{ 'selected' if form_data and form_data.country == 'Chile' else '' }}>Chile</option>
+                          <option value="China" {{ 'selected' if form_data and form_data.country == 'China' else '' }}>China</option>
+                          <option value="Colombia" {{ 'selected' if form_data and form_data.country == 'Colombia' else '' }}>Colombia</option>
+                          <option value="Costa Rica" {{ 'selected' if form_data and form_data.country == 'Costa Rica' else '' }}>Costa Rica</option>
+                          <option value="Croatia" {{ 'selected' if form_data and form_data.country == 'Croatia' else '' }}>Croatia</option>
+                          <option value="Cuba" {{ 'selected' if form_data and form_data.country == 'Cuba' else '' }}>Cuba</option>
+                          <option value="Cyprus" {{ 'selected' if form_data and form_data.country == 'Cyprus' else '' }}>Cyprus</option>
+                          <option value="Dominican Republic" {{ 'selected' if form_data and form_data.country == 'Dominican Republic' else '' }}>Dominican Republic</option>
+                          <option value="Ecuador" {{ 'selected' if form_data and form_data.country == 'Ecuador' else '' }}>Ecuador</option>
+                          <option value="Egypt" {{ 'selected' if form_data and form_data.country == 'Egypt' else '' }}>Egypt</option>
+                          <option value="El Salvador" {{ 'selected' if form_data and form_data.country == 'El Salvador' else '' }}>El Salvador</option>
+                          <option value="Ethiopia" {{ 'selected' if form_data and form_data.country == 'Ethiopia' else '' }}>Ethiopia</option>
+                          <option value="Fiji" {{ 'selected' if form_data and form_data.country == 'Fiji' else '' }}>Fiji</option>
+                          <option value="Finland" {{ 'selected' if form_data and form_data.country == 'Finland' else '' }}>Finland</option>
+                          <option value="France" {{ 'selected' if form_data and form_data.country == 'France' else '' }}>France</option>
+                          <option value="Germany" {{ 'selected' if form_data and form_data.country == 'Germany' else '' }}>Germany</option>
+                          <option value="Greece" {{ 'selected' if form_data and form_data.country == 'Greece' else '' }}>Greece</option>
+                          <option value="Guatemala" {{ 'selected' if form_data and form_data.country == 'Guatemala' else '' }}>Guatemala</option>
+                          <option value="Haiti" {{ 'selected' if form_data and form_data.country == 'Haiti' else '' }}>Haiti</option>
+                          <option value="Honduras" {{ 'selected' if form_data and form_data.country == 'Honduras' else '' }}>Honduras</option>
+                          <option value="India" {{ 'selected' if form_data and form_data.country == 'India' else '' }}>India</option>
+                          <option value="Indonesia" {{ 'selected' if form_data and form_data.country == 'Indonesia' else '' }}>Indonesia</option>
+                          <option value="Iran" {{ 'selected' if form_data and form_data.country == 'Iran' else '' }}>Iran</option>
+                          <option value="Iraq" {{ 'selected' if form_data and form_data.country == 'Iraq' else '' }}>Iraq</option>
+                          <option value="Ireland" {{ 'selected' if form_data and form_data.country == 'Ireland' else '' }}>Ireland</option>
+                          <option value="Israel" {{ 'selected' if form_data and form_data.country == 'Israel' else '' }}>Israel</option>
+                          <option value="Italy" {{ 'selected' if form_data and form_data.country == 'Italy' else '' }}>Italy</option>
+                          <option value="Jamaica" {{ 'selected' if form_data and form_data.country == 'Jamaica' else '' }}>Jamaica</option>
+                          <option value="Japan" {{ 'selected' if form_data and form_data.country == 'Japan' else '' }}>Japan</option>
+                          <option value="Jordan" {{ 'selected' if form_data and form_data.country == 'Jordan' else '' }}>Jordan</option>
+                          <option value="Kenya" {{ 'selected' if form_data and form_data.country == 'Kenya' else '' }}>Kenya</option>
+                          <option value="Madagascar" {{ 'selected' if form_data and form_data.country == 'Madagascar' else '' }}>Madagascar</option>
+                          <option value="Malaysia" {{ 'selected' if form_data and form_data.country == 'Malaysia' else '' }}>Malaysia</option>
+                          <option value="Mauritius" {{ 'selected' if form_data and form_data.country == 'Mauritius' else '' }}>Mauritius</option>
+                          <option value="Mexico" {{ 'selected' if form_data and form_data.country == 'Mexico' else '' }}>Mexico</option>
+                          <option value="Montenegro" {{ 'selected' if form_data and form_data.country == 'Montenegro' else '' }}>Montenegro</option>
+                          <option value="Morocco" {{ 'selected' if form_data and form_data.country == 'Morocco' else '' }}>Morocco</option>
+                          <option value="Myanmar" {{ 'selected' if form_data and form_data.country == 'Myanmar' else '' }}>Myanmar</option>
+                          <option value="Netherlands" {{ 'selected' if form_data and form_data.country == 'Netherlands' else '' }}>Netherlands</option>
+                          <option value="New Zealand" {{ 'selected' if form_data and form_data.country == 'New Zealand' else '' }}>New Zealand</option>
+                          <option value="Nicaragua" {{ 'selected' if form_data and form_data.country == 'Nicaragua' else '' }}>Nicaragua</option>
+                          <option value="North Korea" {{ 'selected' if form_data and form_data.country == 'North Korea' else '' }}>North Korea</option>
+                          <option value="Norway" {{ 'selected' if form_data and form_data.country == 'Norway' else '' }}>Norway</option>
+                          <option value="Pakistan" {{ 'selected' if form_data and form_data.country == 'Pakistan' else '' }}>Pakistan</option>
+                          <option value="Panama" {{ 'selected' if form_data and form_data.country == 'Panama' else '' }}>Panama</option>
+                          <option value="Papua New Guinea" {{ 'selected' if form_data and form_data.country == 'Papua New Guinea' else '' }}>Papua New Guinea</option>
+                          <option value="Peru" {{ 'selected' if form_data and form_data.country == 'Peru' else '' }}>Peru</option>
+                          <option value="Philippines" {{ 'selected' if form_data and form_data.country == 'Philippines' else '' }}>Philippines</option>
+                          <option value="Portugal" {{ 'selected' if form_data and form_data.country == 'Portugal' else '' }}>Portugal</option>
+                          <option value="Puerto Rico" {{ 'selected' if form_data and form_data.country == 'Puerto Rico' else '' }}>Puerto Rico</option>
+                          <option value="Romania" {{ 'selected' if form_data and form_data.country == 'Romania' else '' }}>Romania</option>
+                          <option value="Russia" {{ 'selected' if form_data and form_data.country == 'Russia' else '' }}>Russia</option>
+                          <option value="Samoa" {{ 'selected' if form_data and form_data.country == 'Samoa' else '' }}>Samoa</option>
+                          <option value="Solomon Islands" {{ 'selected' if form_data and form_data.country == 'Solomon Islands' else '' }}>Solomon Islands</option>
+                          <option value="South Africa" {{ 'selected' if form_data and form_data.country == 'South Africa' else '' }}>South Africa</option>
+                          <option value="South Korea" {{ 'selected' if form_data and form_data.country == 'South Korea' else '' }}>South Korea</option>
+                          <option value="Spain" {{ 'selected' if form_data and form_data.country == 'Spain' else '' }}>Spain</option>
+                          <option value="Sri Lanka" {{ 'selected' if form_data and form_data.country == 'Sri Lanka' else '' }}>Sri Lanka</option>
+                          <option value="Sweden" {{ 'selected' if form_data and form_data.country == 'Sweden' else '' }}>Sweden</option>
+                          <option value="Taiwan" {{ 'selected' if form_data and form_data.country == 'Taiwan' else '' }}>Taiwan</option>
+                          <option value="Tanzania" {{ 'selected' if form_data and form_data.country == 'Tanzania' else '' }}>Tanzania</option>
+                          <option value="Thailand" {{ 'selected' if form_data and form_data.country == 'Thailand' else '' }}>Thailand</option>
+                          <option value="Tonga" {{ 'selected' if form_data and form_data.country == 'Tonga' else '' }}>Tonga</option>
+                          <option value="Trinidad and Tobago" {{ 'selected' if form_data and form_data.country == 'Trinidad and Tobago' else '' }}>Trinidad and Tobago</option>
+                          <option value="Tunisia" {{ 'selected' if form_data and form_data.country == 'Tunisia' else '' }}>Tunisia</option>
+                          <option value="Turkey" {{ 'selected' if form_data and form_data.country == 'Turkey' else '' }}>Turkey</option>
+                          <option value="United Kingdom" {{ 'selected' if form_data and form_data.country == 'United Kingdom' else '' }}>United Kingdom</option>
+                          <option value="United States" {{ 'selected' if form_data and form_data.country == 'United States' else '' }}>United States</option>
+                          <option value="Vanuatu" {{ 'selected' if form_data and form_data.country == 'Vanuatu' else '' }}>Vanuatu</option>
+                          <option value="Venezuela" {{ 'selected' if form_data and form_data.country == 'Venezuela' else '' }}>Venezuela</option>
+                          <option value="Vietnam" {{ 'selected' if form_data and form_data.country == 'Vietnam' else '' }}>Vietnam</option>
+                          
+                          <!-- Ocean Regions -->
+                          <optgroup label="Ocean Regions">
+                            <option value="Arctic Ocean" {{ 'selected' if form_data and form_data.country == 'Arctic Ocean' else '' }}>Arctic Ocean</option>
+                            <option value="Baltic Sea" {{ 'selected' if form_data and form_data.country == 'Baltic Sea' else '' }}>Baltic Sea</option>
+                            <option value="Caribbean Sea" {{ 'selected' if form_data and form_data.country == 'Caribbean Sea' else '' }}>Caribbean Sea</option>
+                            <option value="Central Atlantic Ocean" {{ 'selected' if form_data and form_data.country == 'Central Atlantic Ocean' else '' }}>Central Atlantic Ocean</option>
+                            <option value="Central Pacific Ocean" {{ 'selected' if form_data and form_data.country == 'Central Pacific Ocean' else '' }}>Central Pacific Ocean</option>
+                            <option value="East Indian Ocean" {{ 'selected' if form_data and form_data.country == 'East Indian Ocean' else '' }}>East Indian Ocean</option>
+                            <option value="East Pacific Ocean" {{ 'selected' if form_data and form_data.country == 'East Pacific Ocean' else '' }}>East Pacific Ocean</option>
+                            <option value="Indian Ocean" {{ 'selected' if form_data and form_data.country == 'Indian Ocean' else '' }}>Indian Ocean</option>
+                            <option value="Mediterranean Sea" {{ 'selected' if form_data and form_data.country == 'Mediterranean Sea' else '' }}>Mediterranean Sea</option>
+                            <option value="North Atlantic Ocean" {{ 'selected' if form_data and form_data.country == 'North Atlantic Ocean' else '' }}>North Atlantic Ocean</option>
+                            <option value="North Pacific Ocean" {{ 'selected' if form_data and form_data.country == 'North Pacific Ocean' else '' }}>North Pacific Ocean</option>
+                            <option value="Northwest Pacific Ocean" {{ 'selected' if form_data and form_data.country == 'Northwest Pacific Ocean' else '' }}>Northwest Pacific Ocean</option>
+                            <option value="Red Sea" {{ 'selected' if form_data and form_data.country == 'Red Sea' else '' }}>Red Sea</option>
+                            <option value="South Atlantic Ocean" {{ 'selected' if form_data and form_data.country == 'South Atlantic Ocean' else '' }}>South Atlantic Ocean</option>
+                            <option value="South Pacific Ocean" {{ 'selected' if form_data and form_data.country == 'South Pacific Ocean' else '' }}>South Pacific Ocean</option>
+                            <option value="West Indian Ocean" {{ 'selected' if form_data and form_data.country == 'West Indian Ocean' else '' }}>West Indian Ocean</option>
+                            <option value="West Pacific Ocean" {{ 'selected' if form_data and form_data.country == 'West Pacific Ocean' else '' }}>West Pacific Ocean</option>
+                          </optgroup>
+                        </select>
+                        <div class="help-text">Select the country or ocean region</div>
+                      </div>
+
+                      <div class="col-md-6">
+                        <label for="continent" class="form-label">
+                          <i class="fas fa-globe"></i> Continent Region
+                        </label>
+                        <select name="continent" id="continent" class="form-select" required readonly>
+                          <option value="">Select Country First</option>
+                          <option value="Asia" {{ 'selected' if form_data and form_data.continent == 'Asia' else '' }}>Asia</option>
+                          <option value="Europe" {{ 'selected' if form_data and form_data.continent == 'Europe' else '' }}>Europe</option>
+                          <option value="Other" {{ 'selected' if form_data and form_data.continent == 'Other' else '' }}>Other (Americas, Africa, Oceania)</option>
+                        </select>
+                        <div class="help-text">Auto-detected based on selected country</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Action Buttons -->
+                  <div class="action-buttons">
+                    <button type="submit" class="btn btn-primary btn-lg me-3">
+                      <i class="fas fa-brain me-2"></i> Classify Tsunami Event
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary btn-lg" id="clearBtn">
+                      <i class="fas fa-eraser me-2"></i> Clear Form
+                    </button>
+                  </div>
+                </form>
+
+                <!-- Loading State -->
+                <div class="loading" id="loading" style="display: none;">
+                  <div class="spinner"></div>
+                  <p class="mb-0">Analyzing tsunami event data...</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sidebar -->
+          <div class="col-lg-4">
+            
+            <!-- Result Card -->
+            {% if result %}
+            <div class="card result-card mb-4">
+              <div class="card-header">
+                <h5 class="mb-0">
+                  <i class="fas fa-chart-pie me-2"></i>
+                  Classification Result
+                </h5>
+              </div>
+              <div class="card-body">
+                <div class="result-text p-3 text-center rounded-3" id="resultDisplay">{{ result }}</div>
+              </div>
+            </div>
+            {% endif %}
+
+            <!-- Classification Types -->
+            <div class="card info-card mb-4">
+              <div class="card-header">
+                <h5 class="mb-0">
+                  <i class="fas fa-info-circle me-2"></i>
+                  Classification Types
+                </h5>
+              </div>
+              <div class="card-body">
+                <ul class="classification-types list-unstyled mb-0">
+                  <li>
+                    <span class="type-indicator type-definite"></span>
+                    <strong>Definite Tsunami</strong> - Confirmed tsunami event
+                  </li>
+                  <li>
+                    <span class="type-indicator type-probable"></span>
+                    <strong>Probable Tsunami</strong> - Likely tsunami occurrence
+                  </li>
+                  <li>
+                    <span class="type-indicator type-questionable"></span>
+                    <strong>Questionable Tsunami</strong> - Uncertain tsunami event
+                  </li>
+                  <li>
+                    <span class="type-indicator type-doubtful"></span>
+                    <strong>Very Doubtful Tsunami</strong> - Unlikely tsunami
+                  </li>
+                  <li class="border-0">
+                    <span class="type-indicator type-seiche"></span>
+                    <strong>Seiche/Inland Disturbance</strong> - Non-tsunami water disturbance
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            <!-- How It Works -->
+            <div class="card info-card">
+              <div class="card-header">
+                <h5 class="mb-0">
+                  <i class="fas fa-lightbulb me-2"></i>
+                  How It Works
+                </h5>
+              </div>
+              <div class="card-body">
+                <p class="mb-0">Our AI system analyzes 9 key features including earthquake magnitude, geographic coordinates, depth, tsunami intensity, country/region, tsunami cause, and continental classification to predict tsunami event validity using advanced machine learning algorithms trained on historical data.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Scripts -->
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <!-- Custom JavaScript -->
+  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+  <script>
+    // Add color classes to result display based on classification result
+    document.addEventListener('DOMContentLoaded', function() {
+      const resultDisplay = document.getElementById('resultDisplay');
+      if (resultDisplay && resultDisplay.textContent.trim()) {
+        const resultText = resultDisplay.textContent.trim().toLowerCase();
+        
+        // Remove default bg-light class and add appropriate color class
+        resultDisplay.classList.remove('bg-light');
+        
+        if (resultText.includes('definite')) {
+          resultDisplay.classList.add('result-definite');
+        } else if (resultText.includes('probable')) {
+          resultDisplay.classList.add('result-probable');
+        } else if (resultText.includes('questionable')) {
+          resultDisplay.classList.add('result-questionable');
+        } else if (resultText.includes('doubtful') || resultText.includes('seiche')) {
+          resultDisplay.classList.add('result-doubtful');
+        }
+      }
+      
+      // Country to continent mapping
+      const countryToContinentMap = {
+        // Asian Countries
+        'Bangladesh': 'Asia',
+        'China': 'Asia',
+        'India': 'Asia',
+        'Indonesia': 'Asia',
+        'Iran': 'Asia',
+        'Iraq': 'Asia',
+        'Israel': 'Asia',
+        'Japan': 'Asia',
+        'Jordan': 'Asia',
+        'Malaysia': 'Asia',
+        'Myanmar': 'Asia',
+        'North Korea': 'Asia',
+        'Pakistan': 'Asia',
+        'Philippines': 'Asia',
+        'Russia': 'Asia',
+        'South Korea': 'Asia',
+        'Sri Lanka': 'Asia',
+        'Taiwan': 'Asia',
+        'Thailand': 'Asia',
+        'Turkey': 'Asia',
+        'Vietnam': 'Asia',
+        
+        // European Countries
+        'Albania': 'Europe',
+        'Bulgaria': 'Europe',
+        'Croatia': 'Europe',
+        'Cyprus': 'Europe',
+        'Finland': 'Europe',
+        'France': 'Europe',
+        'Germany': 'Europe',
+        'Greece': 'Europe',
+        'Ireland': 'Europe',
+        'Italy': 'Europe',
+        'Montenegro': 'Europe',
+        'Netherlands': 'Europe',
+        'Norway': 'Europe',
+        'Portugal': 'Europe',
+        'Romania': 'Europe',
+        'Spain': 'Europe',
+        'Sweden': 'Europe',
+        'United Kingdom': 'Europe',
+        
+        // All other countries/regions (Americas, Africa, Oceania, Ocean regions)
+        'Algeria': 'Other',
+        'Argentina': 'Other',
+        'Australia': 'Other',
+        'Brazil': 'Other',
+        'Canada': 'Other',
+        'Chile': 'Other',
+        'Colombia': 'Other',
+        'Costa Rica': 'Other',
+        'Cuba': 'Other',
+        'Dominican Republic': 'Other',
+        'Ecuador': 'Other',
+        'Egypt': 'Other',
+        'El Salvador': 'Other',
+        'Ethiopia': 'Other',
+        'Fiji': 'Other',
+        'Guatemala': 'Other',
+        'Haiti': 'Other',
+        'Honduras': 'Other',
+        'Jamaica': 'Other',
+        'Kenya': 'Other',
+        'Madagascar': 'Other',
+        'Mauritius': 'Other',
+        'Mexico': 'Other',
+        'Morocco': 'Other',
+        'New Zealand': 'Other',
+        'Nicaragua': 'Other',
+        'Panama': 'Other',
+        'Papua New Guinea': 'Other',
+        'Peru': 'Other',
+        'Puerto Rico': 'Other',
+        'Samoa': 'Other',
+        'Solomon Islands': 'Other',
+        'South Africa': 'Other',
+        'Tanzania': 'Other',
+        'Tonga': 'Other',
+        'Trinidad and Tobago': 'Other',
+        'Tunisia': 'Other',
+        'United States': 'Other',
+        'Vanuatu': 'Other',
+        'Venezuela': 'Other',
+        
+        // Ocean Regions
+        'Arctic Ocean': 'Other',
+        'Baltic Sea': 'Other',
+        'Caribbean Sea': 'Other',
+        'Central Atlantic Ocean': 'Other',
+        'Central Pacific Ocean': 'Other',
+        'East Indian Ocean': 'Other',
+        'East Pacific Ocean': 'Other',
+        'Indian Ocean': 'Other',
+        'Mediterranean Sea': 'Other',
+        'North Atlantic Ocean': 'Other',
+        'North Pacific Ocean': 'Other',
+        'Northwest Pacific Ocean': 'Other',
+        'Red Sea': 'Other',
+        'South Atlantic Ocean': 'Other',
+        'South Pacific Ocean': 'Other',
+        'West Indian Ocean': 'Other',
+        'West Pacific Ocean': 'Other'
+      };
+      
+      // Auto-detect continent based on country selection
+      const countrySelect = document.getElementById('country');
+      const continentSelect = document.getElementById('continent');
+      
+      if (countrySelect && continentSelect) {
+        countrySelect.addEventListener('change', function() {
+          const selectedCountry = this.value;
+          const continent = countryToContinentMap[selectedCountry];
+          
+          if (continent) {
+            continentSelect.value = continent;
+            continentSelect.removeAttribute('readonly');
+            continentSelect.style.backgroundColor = '#f8f9fa';
+          } else {
+            continentSelect.value = '';
+            continentSelect.setAttribute('readonly', true);
+            continentSelect.style.backgroundColor = '#e9ecef';
+          }
+        });
+        
+        // Initialize continent if country is already selected
+        if (countrySelect.value) {
+          const continent = countryToContinentMap[countrySelect.value];
+          if (continent) {
+            continentSelect.value = continent;
+          }
+        }
+      }
+    });
+  </script>
+</body>
+</html>
