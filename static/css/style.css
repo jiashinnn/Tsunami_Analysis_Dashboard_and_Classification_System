@@ -142,7 +142,7 @@ body {
 
 /* Dashboard Styles */
 .dashboard-header {
-  background: var(--secondary-color);
+  background: var(--primary-color);
   color: var(--dark-color);
   padding: 40px 0;
   text-align: center;
