@@ -4,9 +4,11 @@ import numpy as np
 import google.generativeai as genai
 import os
 from datetime import datetime
+from dotenv import load_dotenv
+load_dotenv()
 
 # Configure Gemini API
-genai.configure(api_key=os.getenv('GEMINI_API_KEY', 'AIzaSyCBoAPlYwMQ8c6eHEjzDq4xNjlCfqzDETg'))
+genai.configure(api_key=os.getenv('GEMINI_API_KEY'))
 
 # Load model and encoder
 tsunami_model = joblib.load('tsunami_rf_model.pkl')

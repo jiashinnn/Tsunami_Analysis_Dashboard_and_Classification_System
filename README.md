@@ -74,8 +74,9 @@ This dashboard provides detailed analysis and comparison of tsunami events betwe
 
 ## 🧠 AI-Powered Explanations
 
-### DeepSeek Integration
-Our system now includes **AI-generated explanations** powered by DeepSeek API that provide detailed insights into each classification decision:
+### Gemini AI Integration
+Our system now includes **AI-generated explanations** powered by Gemini 2.0 Flash model API that provide detailed insights into each classification decision:
+
 
 **Explanation Features:**
 - **Scientific Reasoning**: Explains the geological and seismic basis for the classification
@@ -96,7 +97,7 @@ Our system now includes **AI-generated explanations** powered by DeepSeek API th
 - Python 3.7+
 - Flask web framework
 - Power BI account (for dashboard access)
-- DeepSeek API key (for AI explanations)
+- Gemini API key (for AI explanations)
 
 ### Installation Steps
 
@@ -111,22 +112,22 @@ cd "Tsunami Dashboard"
 pip install -r requirements.txt
 ```
 
-3. **Configure DeepSeek API**
-Get your API key from [DeepSeek](https://deepseek.com/) and set it as an environment variable:
+3. **Configure Gemini API**
+Get your API key from [Gemini](https://ai.google.dev/gemini-api/docs) and set it as an environment variable:
 
 **Windows (PowerShell):**
 ```powershell
-$env:DEEPSEEK_API_KEY="your-actual-api-key-here"
+$env:GEMINI_API_KEY="your-actual-api-key-here"
 ```
 
 **Windows (Command Prompt):**
 ```cmd
-set DEEPSEEK_API_KEY=your-actual-api-key-here
+set GEMINI_API_KEY=your-actual-api-key-here
 ```
 
 **macOS/Linux:**
 ```bash
-export DEEPSEEK_API_KEY="your-actual-api-key-here"
+export GEMINI_API_KEY="your-actual-api-key-here"
 ```
 
 4. **Verify model files**
@@ -190,10 +191,11 @@ Tsunami Dashboard/
 - Support for 96 countries/regions and 7 tsunami causes
 
 ### AI Explanation System
-- DeepSeek API integration for intelligent explanations
+- Gemini API integration for intelligent explanations
 - Contextual analysis of input features and model decisions
 - Scientific reasoning based on seismic and tsunami principles
 - Educational explanations suitable for both experts and general users
+
 
 ### Web Application Architecture
 - Flask backend with RESTful API endpoints
