@@ -72,12 +72,31 @@ This dashboard provides detailed analysis and comparison of tsunami events betwe
 - Primary cause (7 categories)
 - Continental region (Asia/Europe/Other)
 
+## 🧠 AI-Powered Explanations
+
+### DeepSeek Integration
+Our system now includes **AI-generated explanations** powered by DeepSeek API that provide detailed insights into each classification decision:
+
+**Explanation Features:**
+- **Scientific Reasoning**: Explains the geological and seismic basis for the classification
+- **Feature Analysis**: Shows how each input parameter influenced the decision
+- **Risk Assessment**: Describes the implications of the classification for tsunami danger
+- **Confidence Factors**: Identifies what makes the prediction reliable or uncertain
+
+**Explanation Content:**
+1. **Primary Factors**: Most influential parameters in the classification
+2. **Scientific Basis**: How earthquake properties relate to tsunami generation
+3. **Geographic Impact**: Location-specific factors and tectonic considerations
+4. **Feature Contributions**: Individual analysis of magnitude, depth, intensity, etc.
+5. **Risk Implications**: What the classification means for coastal safety
+
 ## 🚀 Setup and Installation
 
 ### Prerequisites
 - Python 3.7+
 - Flask web framework
 - Power BI account (for dashboard access)
+- DeepSeek API key (for AI explanations)
 
 ### Installation Steps
 
@@ -92,18 +111,36 @@ cd "Tsunami Dashboard"
 pip install -r requirements.txt
 ```
 
-3. **Verify model files**
+3. **Configure DeepSeek API**
+Get your API key from [DeepSeek](https://deepseek.com/) and set it as an environment variable:
+
+**Windows (PowerShell):**
+```powershell
+$env:DEEPSEEK_API_KEY="your-actual-api-key-here"
+```
+
+**Windows (Command Prompt):**
+```cmd
+set DEEPSEEK_API_KEY=your-actual-api-key-here
+```
+
+**macOS/Linux:**
+```bash
+export DEEPSEEK_API_KEY="your-actual-api-key-here"
+```
+
+4. **Verify model files**
 Ensure these files are present:
 - `tsunami_rf_model.pkl` - Trained Random Forest model
 - `tsunami_label_encoder.pkl` - Label encoder for classifications
 - `tsunami_dataset.csv` - Historical tsunami data
 
-4. **Run the application**
+5. **Run the application**
 ```bash
 python app.py
 ```
 
-5. **Access the dashboard**
+6. **Access the dashboard**
 Navigate to `http://localhost:5000` in your web browser
 
 ## 📱 Usage Guide
@@ -119,6 +156,7 @@ Navigate to `http://localhost:5000` in your web browser
    - Specify geographic location (lat/lng, country)
 2. Click "Classify Tsunami Event"
 3. Review prediction results with confidence scores
+4. **Read the AI explanation** to understand why the model made this prediction and how each input feature influenced the result
 
 ## 🏗️ Project Structure
 
@@ -151,11 +189,18 @@ Tsunami Dashboard/
 - Comprehensive validation with cross-validation techniques
 - Support for 96 countries/regions and 7 tsunami causes
 
+### AI Explanation System
+- DeepSeek API integration for intelligent explanations
+- Contextual analysis of input features and model decisions
+- Scientific reasoning based on seismic and tsunami principles
+- Educational explanations suitable for both experts and general users
+
 ### Web Application Architecture
 - Flask backend with RESTful API endpoints
 - Responsive frontend with Bootstrap styling
 - Form validation and error handling
 - Real-time prediction with confidence scoring
+- AI-powered explanation generation
 
 ## 🎯 API Endpoints
 

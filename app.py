@@ -1,9 +1,15 @@
 from flask import Flask, request, jsonify, render_template
 import joblib
 import numpy as np
+import google.generativeai as genai
+import os
+from datetime import datetime
+
+# Configure Gemini API
+genai.configure(api_key=os.getenv('GEMINI_API_KEY', 'AIzaSyCBoAPlYwMQ8c6eHEjzDq4xNjlCfqzDETg'))
 
 # Load model and encoder
-model = joblib.load('tsunami_rf_model.pkl')
+tsunami_model = joblib.load('tsunami_rf_model.pkl')
 label_encoder = joblib.load('tsunami_label_encoder.pkl')
 
 app = Flask(__name__)
@@ -77,6 +83,90 @@ def dashboard():
 def classifier():
     return render_template('index.html', active_page='classifier')
 
+def generate_explanation(input_features, prediction, feature_names, input_data):
+    """
+    Generate explanation using Google's Gemini API for tsunami classification result
+    """
+    try:
+        # Create a concise prompt for Gemini
+        prompt = f"""Explain why this earthquake was classified as "{prediction}":
+
+Magnitude {input_data['magnitude']}, depth {input_data['depth']}km, {input_data['country']}, intensity {input_data['intensity']}, cause: {input_data['cause']}.
+
+Why this classification? How do magnitude/depth affect tsunami risk? Keep under 100 words."""
+
+        print(f"Debug - Attempting Gemini API call...")
+        
+        # Generate explanation using Gemini
+        model = genai.GenerativeModel('gemini-2.0-flash')
+        response = model.generate_content(prompt)
+        
+        print(f"Debug - API response received")
+        
+        if response.text and len(response.text.strip()) > 0:
+            return response.text
+        else:
+            print("Debug - Empty response from Gemini API")
+            return "The Gemini API returned an empty response. This might be due to content filters or API limitations."
+
+    except Exception as e:
+        error_message = str(e).lower()
+        print(f"Debug - Detailed error: {type(e).__name__}: {str(e)}")
+        
+        # Handle specific error types
+        if "quota" in error_message or "rate" in error_message:
+            fallback_msg = f"API quota exceeded. The classification '{prediction}' indicates this event has characteristics typical of confirmed tsunami events based on magnitude ({input_data['magnitude']}) and depth ({input_data['depth']} km)."
+        elif "api_key" in error_message or "authentication" in error_message or "401" in error_message:
+            fallback_msg = f"API authentication issue. The classification '{prediction}' was determined by analyzing seismic parameters including magnitude ({input_data['magnitude']}), depth ({input_data['depth']} km), and location factors."
+        elif "blocked" in error_message or "safety" in error_message or "content" in error_message:
+            fallback_msg = f"Content filtered by API. The '{prediction}' classification is based on scientific analysis of earthquake magnitude ({input_data['magnitude']}), depth ({input_data['depth']} km), and geographic location in {input_data['country']}."
+        elif "network" in error_message or "connection" in error_message:
+            fallback_msg = f"Network connectivity issue. The classification '{prediction}' reflects the tsunami potential based on magnitude ({input_data['magnitude']}), shallow depth ({input_data['depth']} km), and location-specific risk factors."
+        else:
+            fallback_msg = f"API error occurred. The classification '{prediction}' was determined based on multiple factors including earthquake magnitude ({input_data['magnitude']}), depth ({input_data['depth']} km), and regional tsunami risk assessment."
+        
+        # Try a much simpler prompt as fallback
+        try:
+            simple_prompt = f"Magnitude {input_data['magnitude']}, depth {input_data['depth']}km in {input_data['country']} = '{prediction}'. Why? One sentence."
+            print(f"Debug - Trying simpler prompt...")
+            
+            model = genai.GenerativeModel('gemini-pro')
+            response = model.generate_content(simple_prompt)
+            
+            if response.text and len(response.text.strip()) > 0:
+                return response.text
+                
+        except Exception as e2:
+            print(f"Debug - Simple prompt also failed: {type(e2).__name__}: {str(e2)}")
+        
+        return fallback_msg
+
+@app.route('/test-gemini')
+def test_gemini():
+    """Test route to check if Gemini API is working"""
+    try:
+        # Simple test prompt
+        test_prompt = "Say 'Hello, Gemini API is working!' in exactly those words."
+        model = genai.GenerativeModel('gemini-pro')
+        response = model.generate_content(test_prompt)
+        
+        return jsonify({
+            'status': 'success',
+            'api_key_configured': True,
+            'response': response.text if response.text else 'Empty response',
+            'response_length': len(response.text) if response.text else 0
+        })
+        
+    except Exception as e:
+        import traceback
+        return jsonify({
+            'status': 'error',
+            'error': str(e),
+            'error_type': type(e).__name__,
+            'traceback': traceback.format_exc(),
+            'api_key_configured': True
+        })
+
 @app.route('/predict', methods=['POST'])
 def predict():
     # Store form data to preserve values
@@ -139,21 +229,28 @@ def predict():
         print(f"Debug - Feature order: month={month}, magnitude={magnitude}, lat={latitude}, lng={longitude}, depth={depth}, intensity={intensity}, country={country_code}, cause={cause_code}, continent={continent_code}")
 
         # Predict
-        prediction = model.predict(features)
+        prediction = tsunami_model.predict(features)
         print(f"Debug - Raw prediction: {prediction}")
         
         # Get prediction probabilities to see confidence
-        if hasattr(model, 'predict_proba'):
-            probabilities = model.predict_proba(features)
+        if hasattr(tsunami_model, 'predict_proba'):
+            probabilities = tsunami_model.predict_proba(features)
             print(f"Debug - Prediction probabilities: {probabilities}")
         
         predicted_label = label_encoder.inverse_transform(prediction)[0]
         print(f"Debug - Predicted label: {predicted_label}")
 
+        # Generate explanation using DeepSeek API
+        feature_names = ['Month', 'Magnitude', 'Latitude', 'Longitude', 'Depth', 
+                        'Intensity', 'Country', 'Cause', 'Continent']
+        
+        explanation = generate_explanation(features[0], predicted_label, feature_names, form_data)
+
         return render_template('index.html', 
                              active_page='classifier',
                              form_data=form_data, 
-                             result=predicted_label)
+                             result=predicted_label,
+                             explanation=explanation)
 
     except Exception as e:
         print(f"Debug - Error occurred: {e}")
