@@ -15,6 +15,8 @@ This dashboard provides detailed analysis and comparison of tsunami events betwe
 
 ### Power BI Visualizations
 
+![127 0 0 1_5000_ (8)](https://github.com/user-attachments/assets/7d57f681-760f-4741-a5e5-b410836b99cc)
+
 **Page 1: Global Overview**
 - Global tsunami count: **1.23K events**
 - Highest recorded magnitude: **9.50**
@@ -23,12 +25,16 @@ This dashboard provides detailed analysis and comparison of tsunami events betwe
 - Damage level analysis by region (Extreme, Limited, Moderate, Severe)
 - Monthly tsunami occurrence patterns
 
+![127 0 0 1_5000_ (11)](https://github.com/user-attachments/assets/f36b5c14-b374-4c74-b5e8-21c01f3ec536)
+
 **Page 2: Asian Countries Analysis**
 - Total Asian tsunami events: **473**
 - Country-wise breakdown featuring Japan (160), Indonesia (118), Russia (79)
 - Tsunami causes analysis (87.95% Earthquake-caused)
 - Magnitude categories and event validity distribution
 - Interactive map focused on Asian regions
+
+![127 0 0 1_5000_ (12)](https://github.com/user-attachments/assets/8f4ef3f5-213b-42e2-b7e9-108a10485380)
 
 **Page 3: European Countries Analysis**
 - Total European tsunami events: **114**
@@ -48,6 +54,9 @@ This dashboard provides detailed analysis and comparison of tsunami events betwe
 5. **Magnitude Analysis**: Most events fall in moderate magnitude categories
 
 ## 🤖 Machine Learning Classification
+
+![127 0 0 1_5000_classifier (1)](https://github.com/user-attachments/assets/9b11281c-2533-493d-831c-8a38ba266277)
+
 
 ### Model Specifications
 - **Algorithm**: Random Forest Classifier
@@ -77,19 +86,6 @@ This dashboard provides detailed analysis and comparison of tsunami events betwe
 ### Gemini AI Integration
 Our system now includes **AI-generated explanations** powered by Gemini 2.0 Flash model API that provide detailed insights into each classification decision:
 
-
-**Explanation Features:**
-- **Scientific Reasoning**: Explains the geological and seismic basis for the classification
-- **Feature Analysis**: Shows how each input parameter influenced the decision
-- **Risk Assessment**: Describes the implications of the classification for tsunami danger
-- **Confidence Factors**: Identifies what makes the prediction reliable or uncertain
-
-**Explanation Content:**
-1. **Primary Factors**: Most influential parameters in the classification
-2. **Scientific Basis**: How earthquake properties relate to tsunami generation
-3. **Geographic Impact**: Location-specific factors and tectonic considerations
-4. **Feature Contributions**: Individual analysis of magnitude, depth, intensity, etc.
-5. **Risk Implications**: What the classification means for coastal safety
 
 ## 🚀 Setup and Installation
 
