@@ -2,6 +2,12 @@
 
 An interactive web application for comprehensive tsunami data analysis and event classification, developed for **A242_STTHK3033 Information Visualization** course assignment. This project combines advanced data visualization through Power BI dashboards with machine learning-powered tsunami event classification.
 
+## 🚀 Live Demo
+
+**🌐 [View Live Application](https://tsunami-analysis-dashboard-and.onrender.com/)**
+
+Experience the full interactive dashboard with real-time tsunami classification and AI-powered explanations!
+
 ## 🌊 Project Overview
 
 This dashboard provides detailed analysis and comparison of tsunami events between Asian and European countries, featuring:
@@ -138,7 +144,8 @@ python app.py
 ```
 
 6. **Access the dashboard**
-Navigate to `http://localhost:5000` in your web browser
+- **Local Development**: Navigate to `http://localhost:5000` in your web browser
+- **Live Version**: Visit [https://tsunami-analysis-dashboard-and.onrender.com/](https://tsunami-analysis-dashboard-and.onrender.com/)
 
 ## 📱 Usage Guide
 
